@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, g, render_template
+from flask import Flask, g, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
@@ -22,7 +22,6 @@ def init_db_command():
     init_db()
     print('Database initialized.')
 
-
 @app.teardown_appcontext
 def close_db(exception):
     """
@@ -34,7 +33,7 @@ def close_db(exception):
 
 def init_db():
     """
-    Initialize the database with a table.
+    Initialize the database with tables.
     """
     db = get_db()
     
@@ -45,7 +44,6 @@ def get_reports():
     """
     Returns a list of reports sorted by name.
     """
-
     conn = get_db()
     cur = conn.cursor()
 
@@ -55,11 +53,17 @@ FROM reports
 ORDER BY name'''
 
     cur.execute(query)
-
-    # fetchall() gets all the rows as a list
     return cur.fetchall()
 
 @app.route('/')
+def index():
+    """
+    Serves the index page with welcome text.
+    """
+    print("Index page accessed")
+    return render_template('index.html')
+
+@app.route('/reports')
 def reports():
     """
     Serves a page which shows the items sorted by name. See the file
@@ -67,8 +71,29 @@ def reports():
     is passed as the positional parameter items, which is then accessible
     within the template.
     """
+    return render_template('reports.html', reports=get_reports())
 
-    return render_template('index.html', reports=get_reports())
+# Add route to display events and add a new event
+@app.route('/events', methods=['GET', 'POST'])
+def events():
+    db = get_db()
+
+    if request.method == 'POST':
+        # Get the event name from the form submission
+        event_name = request.form['event_name']
+
+        # Insert the new event into the database
+        db.execute('INSERT INTO events (event_name) VALUES (?)', (event_name,))
+        db.commit()
+
+        # Redirect back to the events page after adding the event
+        return redirect(url_for('events'))
+
+    # Fetch all events to display on the page
+    cur = db.execute('SELECT id, event_name, attended FROM events')
+    events_list = cur.fetchall()
+
+    return render_template('events.html', events=events_list)
 
 if __name__ == '__main__':
     app.run(debug=True)

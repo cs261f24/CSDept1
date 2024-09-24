@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Reports</title>
+  </head>
+  <body>
+    <h1>Reports</h1>
+
+    <ul>
+      {% for report in reports %}
+        <li>{{ report['name'] }} - {{ report['event'] }}</li>
+      {% endfor %}
+    </ul>
+
+    <a href="/">Back to Home</a>
+  </body>
+</html>

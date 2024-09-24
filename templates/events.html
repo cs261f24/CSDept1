@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Events</title>
+  </head>
+  <body>
+    <h1>Events</h1>
+
+    <!-- Form for adding new events -->
+    <form method="POST" action="/events">
+      <input type="text" name="event_name" placeholder="New Event" required>
+      <button type="submit">Add Event</button>
+    </form>
+
+    <ul>
+      <!-- Displaying the events list -->
+      {% for event in events %}
+        <li>
+          {{ event['event_name'] }} - {% if event['attended'] == 0 %} Not Attended {% else %} Attended {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+
+    <a href="/">Back to Home</a>
+  </body>
+</html>

@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <meta charset=""UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Events</title>
   </head>
   <body>
@@ -17,6 +19,12 @@
       {% for event in events %}
         <li>
           {{ event['event_name'] }} - {% if event['attended'] == 0 %} Not Attended {% else %} Attended {% endif %}
+
+        <!-- Form to remove an event-->
+        <form method="POST" action="/events" style="display: inline;">
+          <input type="hidden" name="remove_event_id" value="{{ event['id'] }}">
+          <button type="submit">Remove</button>
+        </form>
         </li>
       {% endfor %}
     </ul>

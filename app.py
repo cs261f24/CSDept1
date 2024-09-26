@@ -79,12 +79,18 @@ def events():
     db = get_db()
 
     if request.method == 'POST':
-        # Get the event name from the form submission
-        event_name = request.form['event_name']
-
-        # Insert the new event into the database
-        db.execute('INSERT INTO events (event_name) VALUES (?)', (event_name,))
-        db.commit()
+        # Check if the request is to add or remove an event
+        if 'event_name' in request.form:
+            #Add new event
+            event_name = request.form['event_name']
+            # Insert the new event into the database
+            db.execute('INSERT INTO events (event_name) VALUES (?)', (event_name,))
+            db.commit()
+        elif 'remove_event_id' in request.form:
+            #Remove an existing event
+            event_id = request.form['remove_event_id']
+            db.execute('DELETE FROM events WHERE id = ?', (event_id,))
+            db.commit()
 
         # Redirect back to the events page after adding the event
         return redirect(url_for('events'))

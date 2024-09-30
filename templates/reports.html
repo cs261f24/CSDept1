@@ -1,17 +1,48 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Reports</title>
-  </head>
-  <body>
-    <h1>Reports</h1>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSDept1</title>
+    <!-- Link to CSS using Flask's url_for function -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <ul>
+            <li class="logo">Welcome to the Website!</li>
+            <li><a href="{{ url_for('reports') }}">View Reports</a></li>
+            <li><a href="{{ url_for('events') }}">View Events</a></li>
+        </ul>
+    </nav>
 
-    <ul>
-      {% for report in reports %}
-        <li>{{ report['name'] }} - {{ report['event'] }}</li>
-      {% endfor %}
-    </ul>
+    <section>
+        <!-- Creates a table to show attributes of reports -->
+        <h2>Student Reports</h2>
+        <div class="table-container">
+            <table class="activities-table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Activity Attended</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                        <tr>
+                            <td>{{ report['name'] }}</td>
+                            <td>{{ report['event'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-    <a href="/">Back to Home</a>
-  </body>
+    <!-- home button on bottom of page -->
+    <div class="centered">
+        <a href="/" class="back-home">Back to Home</a>
+    </div>
+</body>
 </html>

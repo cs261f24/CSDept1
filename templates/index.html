@@ -3,22 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to CSS file -->
+    <title>CSDept1</title>
+    <!-- Link to CSS using Flask's url_for function -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Welcome to My Website</h1>
-    </header>
-    <main>
-        <p>This is a simple HTML template.</p>
-        <p>Feel free to customize it!</p>
-        <a href="/reports">View Reports</a>
-        <br>
-        <a href="/events">View Events</a>
-    </main>
-    <footer>
-        <p>&copy; 2024 My Website</p>
-    </footer>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <ul>
+            <li class="logo">Welcome to the Website!</li>
+            <nav class="navbar">
+                <ul>
+                    <li><a href="{{ url_for('reports') }}">View Reports</a></li>
+                    <li><a href="{{ url_for('events') }}">View Events</a></li>
+                </ul>
+            </nav>
+            
+        </ul>
+    </nav>
+
+    <!-- Feel free to add more if you wish! -->
 </body>
 </html>

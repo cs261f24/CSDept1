@@ -55,7 +55,7 @@ ORDER BY name'''
     cur.execute(query)
     return cur.fetchall()
 
-@app.route('/')
+@app.route('/index')
 def index():
     """
     Serves the index page with welcome text.
@@ -100,6 +100,16 @@ def events():
     events_list = cur.fetchall()
 
     return render_template('events.html', events=events_list)
+
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # Handle form data (login logic)
+        username = request.form['username']
+        password = request.form['password']
+        # Add logic to authenticate user
+        return redirect(url_for('index'))
+    return render_template('login.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

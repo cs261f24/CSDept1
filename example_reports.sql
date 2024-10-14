@@ -6,8 +6,9 @@ CREATE TABLE IF NOT EXISTS reports (
     name TEXT NOT NULL UNIQUE,
     event TEXT NOT NULL
 );
-
-CREATE TABLE IF NOT EXISTS events (
+/* If the events table exists, it is dropped */
+DROP TABLE IF EXISTS events;
+CREATE TABLE events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_name TEXT NOT NULL,
     attended INTEGER NOT NULL DEFAULT 0
@@ -26,6 +27,5 @@ INSERT INTO reports(name, event) VALUES('Dan Martin', 'Volunteering');
 INSERT INTO reports(name, event) VALUES('Jimmy Johnson', 'Art Club');
 INSERT INTO reports(name, event) VALUES('Samuel Williams', 'Theater Club');
 
-/* If the events table exists, it is dropped */
-DROP TABLE IF EXISTS events;
+
 

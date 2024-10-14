@@ -1,7 +1,9 @@
 import sqlite3
-from flask import Flask, g, render_template, request, redirect, url_for
+from flask import Flask, g, render_template, request, redirect, url_for, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
 # SQLite database path
 DB_PATH = 'db.sqlite3'
@@ -101,14 +103,52 @@ def events():
 
     return render_template('events.html', events=events_list)
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        db = get_db()
+        cursor = db.cursor()
+
+        # Check if the email is already registered
+        cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            flash('Email already registered. Please log in.')
+            return redirect(url_for('login'))
+
+        # Insert the new user into the users table
+        hashed_password = generate_password_hash(password)
+        cursor.execute('INSERT INTO users (email, password) VALUES (?, ?)', (email, hashed_password))
+        db.commit()
+
+        flash('Registration successful! Please log in.')
+        return redirect(url_for('login'))
+    return render_template('registration.html')
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         # Handle form data (login logic)
-        username = request.form['username']
+        email = request.form['username']
         password = request.form['password']
+
+        db = get_db()
+        cursor = db.cursor()
+
         # Add logic to authenticate user
-        return redirect(url_for('index'))
+        cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+        user = cursor.fetchone()
+
+        if user and check_password_hash(user[2], password):
+            # User is authenticated, redirect to the index page
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid email or password')
+
     return render_template('login.html')
 
 if __name__ == '__main__':

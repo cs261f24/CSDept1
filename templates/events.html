@@ -32,7 +32,7 @@
       <!-- Displaying the events list -->
       {% for event in events %}
         <li>
-          {{ event['event_name'] }} - {% if event['attended'] == 0 %} Not Attended {% else %} Attended {% endif %}
+         <a href="/description">{{ event['event_name'] }} - {% if event['attended'] == 0 %} Not Attended {% else %} Attended {% endif %}</a>
 
         <!-- Form to remove an event-->
         <form method="POST" action="/events" style="display: inline;">

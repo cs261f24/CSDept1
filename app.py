@@ -83,8 +83,9 @@ def events():
         if 'event_name' in request.form:
             # Add new event
             event_name = request.form['event_name']
+            description = 'placeholder descript'
             # Insert the new event into the database
-            db.execute('INSERT INTO events (event_name) VALUES (?)', (event_name,))
+            db.execute('INSERT INTO events (event_name, event_description) VALUES (?,?)', (event_name, description))
             db.commit()
         elif 'remove_event_id' in request.form:
             #Remove an existing event
@@ -101,6 +102,7 @@ def events():
 
     return render_template('events.html', events=events_list)
 
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -110,6 +112,16 @@ def login():
         # Add logic to authenticate user
         return redirect(url_for('index'))
     return render_template('login.html')
+
+
+@app.route('/description')
+def event_descript():
+    db = get_db()
+    cur = db.execute('SELECT event_name, event_description FROM events')
+    event_description = cur.fetchall()
+
+    return render_template('eventbase.html', event_descripion=event_description)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

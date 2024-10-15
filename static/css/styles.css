@@ -209,3 +209,30 @@ section {
         width: 300px; /* Resize image for smaller screens */
     }
 }
+
+
+.sort-indicator {
+    display: inline-block; /* Aligns the icon with text */
+    margin-left: 5px; /* Space between text and icon */
+}
+
+.sort-icon {
+    width: 16px; /* Set the desired width of the icon */
+    height: auto; /* Maintain aspect ratio */
+    vertical-align: middle; /* Align with text */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: transform 0.2s; /* Smooth transition for scaling */
+    background-color: white; /* Button color */
+    border-radius: 4px; /* Optional: rounded corners */
+    padding: 5px; /* Padding for better appearance */
+}
+
+/* Hover effect */
+.sort-indicator:hover .sort-icon {
+    transform: scale(1.1); /* Slightly enlarge the icon on hover */
+}
+
+/* Optional: Add some additional styles for the sort indicators */
+.sort-indicator img {
+    filter: invert(0); /* Keep the icon color */
+}

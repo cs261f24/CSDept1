@@ -13,6 +13,8 @@ INSERT INTO reports(name, event) VALUES('Johnny Smith', 'CS Club');
 INSERT INTO reports(name, event) VALUES('Dan Martin', 'Volunteering');
 INSERT INTO reports(name, event) VALUES('Jimmy Johnson', 'Art Club');
 INSERT INTO reports(name, event) VALUES('Samuel Williams', 'Theater Club');
+INSERT INTO reports(name, event) VALUES('Mary-Kate Williams ', 'Basketball Club');
+
 
 /* If the events table exists, it is dropped */
 DROP TABLE IF EXISTS events;

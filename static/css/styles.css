@@ -173,6 +173,72 @@ section {
     background-color: #0056b3;
 }
 
+/* Layout: Container for event list and calendar */
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.event-list {
+    width: 45%; /* Adjust as needed */
+    margin-right: 20px; /* Space between the list and calendar */
+}
+
+#calendar {
+    width: 50%; /* Adjust as needed */
+}
+
+/* Calendar Styles */
+#calendar {
+    max-width: 600px;  /* Limit the width of the calendar */
+    margin: 20px auto; /* Center the calendar */
+    padding: 20px;     /* Add some padding */
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 10px; /* Rounded corners */
+    background-color: #ffffff; /* Background color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+}
+
+/* FullCalendar Default Styles */
+.fc {
+    font-family: 'Roboto', sans-serif; /* Match your site's font */
+}
+
+/* Override FullCalendar styles */
+.fc-daygrid-event {
+    background-color: #0C2340; /* Event background color */
+    color: white; /* Text color for events */
+}
+
+.fc-daygrid-day {
+    border: 1px solid #f0f0f0; /* Day cell border */
+}
+
+.fc-daygrid-month-view {
+    border: none; /* No border for the month view */
+}
+
+.fc-toolbar {
+    background-color: #0C2340; /* Toolbar background color */
+    color: white; /* Toolbar text color */
+    padding: 10px; /* Padding for toolbar */
+}
+
+.fc-toolbar button {
+    background-color: #0056b3; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 5px 10px; /* Padding for buttons */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Transition for hover effect */
+}
+
+.fc-toolbar button:hover {
+    background-color: #003f7f; /* Darker blue on hover */
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .navbar ul {
@@ -207,5 +273,11 @@ section {
 
     .login-image img {
         width: 300px; /* Resize image for smaller screens */
+    }
+
+    /* Calendar Styles for Smaller Screens */
+    #calendar {
+        width: 100%; /* Full width on small screens */
+        margin: 0; /* No margin on small screens */
     }
 }

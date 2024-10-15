@@ -96,7 +96,7 @@ def events():
 
         # Redirect back to the events page after adding the event
         return redirect(url_for('events'))
-
+    
     # Fetch all events to display on the page
     cur = db.execute('SELECT id, event_name, attended FROM events')
     events_list = cur.fetchall()

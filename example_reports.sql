@@ -1,13 +1,16 @@
-/* If a table like reports exists, it is dropped*/
+/* If a table like reports exists, it is dropped */
 DROP TABLE IF EXISTS reports;
 
 CREATE TABLE IF NOT EXISTS reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
-    event TEXT NOT NULL
+    event TEXT NOT NULL,
+    event_type TEXT NOT NULL  -- New column for event type
 );
+
 /* If the events table exists, it is dropped */
 DROP TABLE IF EXISTS events;
+
 CREATE TABLE events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_name TEXT NOT NULL,
@@ -21,13 +24,9 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 /* Example data can be added here to insert into the database */
-INSERT INTO reports(name, event) VALUES('John Smith', 'CS Club');
-INSERT INTO reports(name, event) VALUES('Johnny Smith', 'CS Club');
-INSERT INTO reports(name, event) VALUES('Dan Martin', 'Volunteering');
-INSERT INTO reports(name, event) VALUES('Jimmy Johnson', 'Art Club');
-INSERT INTO reports(name, event) VALUES('Samuel Williams', 'Theater Club');
-INSERT INTO reports(name, event) VALUES('Mary-Kate Williams ', 'Basketball Club');
-
-
-
-
+INSERT INTO reports(name, event, event_type) VALUES('John Smith', 'CS Club Meeting', 'Club');
+INSERT INTO reports(name, event, event_type) VALUES('Johnny Smith', 'Xavier Alumni Speaker', 'Guest Speaker');
+INSERT INTO reports(name, event, event_type) VALUES('Dan Martin', 'Meeting With Liz', 'Advising Meeting');
+INSERT INTO reports(name, event, event_type) VALUES('Jimmy Johnson', 'Outing at St. Vincent DePaul', 'Volunteering');
+INSERT INTO reports(name, event, event_type) VALUES('Samuel Williams', 'CS Club Meeting', 'Club');
+INSERT INTO reports(name, event, event_type) VALUES('Mary-Kate Williams', 'Basketball Club', 'Sport');

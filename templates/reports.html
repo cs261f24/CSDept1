@@ -19,68 +19,61 @@
 
     <section>
         <!-- Creates a table to show attributes of reports -->
-       
-        <section>
-            <h2>Student Reports</h2>
+        <h2>Student Reports</h2>
+        
+        <!-- Search Form -->
+        <form method="GET" action="/reports" class="search-form">
+            <input type="text" name="search" placeholder="Search by Student Name" class="search-bar" value="{{ request.args.get('search', '') }}">
+            <button type="submit" class="search-button">Search</button>
             
-            <!-- Search Form -->
-            <form method="GET" action="/reports" class="search-form">
-                <input type="text" name="search" placeholder="Search by Student Name" class="search-bar">
-                <button type="submit" class="search-button">Search</button>
-                
-                <!-- Dropdown for Event Type -->
-                <select name="event_type" class="event-dropdown">
-                    <option value="">All Event Types</option>
-                    <option value="Workshop">Workshop</option>
-                    <option value="CS Club Meeting">CS Club Meeting</option>
-                    <option value="Advising Meeting">Advising Meeting</option>
-                    <option value="Guest Speaker">Guest Speaker</option>
-                </select>
-                <button type="submit" class="filter-button">Filter</button>
-            </form>
-        
-            <div class="table-container">
-                <table class="activities-table">
-                    <thead>
+            <!-- Dropdown for Event Type -->
+            <select name="event_type" class="event-dropdown">
+                <option value="">All Event Types</option>
+                {% for event in event_types %}
+                    <option value="{{ event[0] }}" {% if event[0] == request.args.get('event_type') %}selected{% endif %}>{{ event[0] }}</option>
+                {% endfor %}
+            </select>
+            
+            <button type="submit" class="filter-button">Filter</button>
+        </form>
+    
+        <div class="table-container">
+            <table class="activities-table">
+                <thead>
+                    <tr>
+                        <th>
+                            Student Name
+                            <a href="/reports?sort=name&event_type={{ request.args.get('event_type', '') }}&search={{ request.args.get('search', '') }}" class="sort-indicator">
+                                <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Name Ascending" class="sort-icon">
+                            </a>
+                            <a href="/reports?sort=name_desc&event_type={{ request.args.get('event_type', '') }}&search={{ request.args.get('search', '') }}" class="sort-indicator">
+                                <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Name Descending" class="sort-icon">
+                            </a>
+                        </th>
+                        <th>
+                            Activity Attended
+                            <a href="/reports?sort=event&event_type={{ request.args.get('event_type', '') }}&search={{ request.args.get('search', '') }}" class="sort-indicator">
+                                <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Event Ascending" class="sort-icon">
+                            </a>
+                            <a href="/reports?sort=event_desc&event_type={{ request.args.get('event_type', '') }}&search={{ request.args.get('search', '') }}" class="sort-indicator">
+                                <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Event Descending" class="sort-icon">
+                            </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
                         <tr>
-                            <th>
-                                Student Name
-                                <a href="/reports?sort=name" class="sort-indicator">
-                                    <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Name Ascending" class="sort-icon">
-                                </a>
-                                <a href="/reports?sort=name_desc" class="sort-indicator">
-                                    <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Name Descending" class="sort-icon">
-                                </a>
-                            </th>
-                            <th>
-                                Activity Attended
-                                <a href="/reports?sort=event" class="sort-indicator">
-                                    <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Event Ascending" class="sort-icon">
-                                </a>
-                                <a href="/reports?sort=event_desc" class="sort-indicator">
-                                    <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Event Descending" class="sort-icon">
-                                </a>
-                            </th>
+                            <td>{{ report['name'] }}</td>
+                            <td>{{ report['event'] }}</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for report in reports %}
-                            <tr>
-                                <td>{{ report['name'] }}</td>
-                                <td>{{ report['event'] }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </section>        
-        
-        
-        
-        
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </section>
-    <!-- Form for Sorting By Name -->
-    <!-- home button on bottom of page -->
+    
+    <!-- Home button on bottom of page -->
     <div class="centered">
         <a href="/index" class="back-home">Back to Home</a>
     </div>

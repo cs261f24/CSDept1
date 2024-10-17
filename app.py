@@ -42,20 +42,37 @@ def init_db():
     with app.open_resource('example_reports.sql') as f:
         db.executescript(f.read().decode('utf8'))
 
-def get_reports():
-    """
-    Returns a list of reports sorted by name.
-    """
+def get_reports(sort_by, search_query, event_type):
     conn = get_db()
     cur = conn.cursor()
 
+    # Base query with placeholders for filtering and sorting
     query = '''
-SELECT name, event
-FROM reports
-ORDER BY name'''
+    SELECT name, event, event_type
+    FROM reports
+    WHERE name LIKE ?
+    '''
 
-    cur.execute(query)
+    query_params = [f'%{search_query}%']
+
+    # Add filtering by event_type if provided
+    if event_type:
+        query += ' AND event_type = ?'
+        query_params.append(event_type)
+
+    # Add sorting logic
+    if sort_by == 'event':
+        query += ' ORDER BY event'
+    elif sort_by == 'event_desc':
+        query += ' ORDER BY event DESC'
+    elif sort_by == 'name_desc':
+        query += ' ORDER BY name DESC'
+    else:  # Default is sorting by name
+        query += ' ORDER BY name'
+
+    cur.execute(query, query_params)
     return cur.fetchall()
+
 
 @app.route('/index')
 def index():
@@ -66,15 +83,21 @@ def index():
     return render_template('index.html')
 
 @app.route('/reports')
+@app.route('/reports')
+@app.route('/reports')
 def reports():
-    """
-    Serves a page which shows the items sorted by name. See the file
-    templates/items.html for the template. The list returned from get_items()
-    is passed as the positional parameter items, which is then accessible
-    within the template.
-    """
-    return render_template('reports.html', reports=get_reports())
+    search_query = request.args.get('search', '').strip()
+    event_type = request.args.get('event_type', '')
+    sort_by = request.args.get('sort', 'name')  # Default sort by name
+    reports = get_reports(sort_by, search_query, event_type)  # Pass all parameters
 
+    # Fetch unique event types for the dropdown
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT DISTINCT event_type FROM reports')
+    event_types = cur.fetchall()
+
+    return render_template('reports.html', reports=reports, event_types=event_types)
 # Add route to display events and add a new event
 @app.route('/events', methods=['GET', 'POST'])
 def events():

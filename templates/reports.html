@@ -20,12 +20,45 @@
     <section>
         <!-- Creates a table to show attributes of reports -->
         <h2>Student Reports</h2>
+        
+        <!-- Search Form -->
+        <form method="GET" action="/reports" class="search-form">
+            <input type="text" name="search" placeholder="Search by Student Name" class="search-bar" value="{{ request.args.get('search', '') }}">
+            <button type="submit" class="search-button">Search</button>
+            
+            <!-- Dropdown for Event Type -->
+            <select name="event_type" class="event-dropdown">
+                <option value="">All Event Types</option>
+                {% for event in event_types %}
+                    <option value="{{ event[0] }}" {% if event[0] == request.args.get('event_type') %}selected{% endif %}>{{ event[0] }}</option>
+                {% endfor %}
+            </select>
+            
+            <button type="submit" class="filter-button">Filter</button>
+        </form>
+    
         <div class="table-container">
             <table class="activities-table">
                 <thead>
                     <tr>
-                        <th>Student Name</th>
-                        <th>Activity Attended</th>
+                        <th>
+                            Student Name
+                            <a href="/reports?sort=name&event_type={{ request.args.get('event_type', '') }}&search={{ request.args.get('search', '') }}" class="sort-indicator">
+                                <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Name Ascending" class="sort-icon">
+                            </a>
+                            <a href="/reports?sort=name_desc&event_type={{ request.args.get('event_type', '') }}&search={{ request.args.get('search', '') }}" class="sort-indicator">
+                                <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Name Descending" class="sort-icon">
+                            </a>
+                        </th>
+                        <th>
+                            Activity Attended
+                            <a href="/reports?sort=event&event_type={{ request.args.get('event_type', '') }}&search={{ request.args.get('search', '') }}" class="sort-indicator">
+                                <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Event Ascending" class="sort-icon">
+                            </a>
+                            <a href="/reports?sort=event_desc&event_type={{ request.args.get('event_type', '') }}&search={{ request.args.get('search', '') }}" class="sort-indicator">
+                                <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Event Descending" class="sort-icon">
+                            </a>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,8 +72,8 @@
             </table>
         </div>
     </section>
-
-    <!-- home button on bottom of page -->
+    
+    <!-- Home button on bottom of page -->
     <div class="centered">
         <a href="/index" class="back-home">Back to Home</a>
     </div>

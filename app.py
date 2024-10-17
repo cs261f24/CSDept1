@@ -131,6 +131,8 @@ def register():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        role = request.form.get('role')
 
         db = get_db()
         cursor = db.cursor()
@@ -142,10 +144,19 @@ def register():
         if existing_user:
             flash('Email already registered. Please log in.')
             return redirect(url_for('login'))
+        
+        if password != confirm_password:
+            flash('Passwords fields do not match')
+            return redirect(url_for('register'))
+        
+        if not role:
+            flash('Please select a role.')
+            return redirect(url_for('register'))
+
 
         # Insert the new user into the users table
         hashed_password = generate_password_hash(password)
-        cursor.execute('INSERT INTO users (email, password) VALUES (?, ?)', (email, hashed_password))
+        cursor.execute('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', (email, hashed_password, role))
         db.commit()
 
         flash('Registration successful! Please log in.')

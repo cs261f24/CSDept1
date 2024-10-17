@@ -17,7 +17,8 @@ CREATE TABLE events (
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    role TEXT NOT NULL
 );
 
 /* Example data can be added here to insert into the database */

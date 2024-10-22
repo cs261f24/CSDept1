@@ -1,7 +1,9 @@
 import sqlite3
-from flask import Flask, g, render_template, request, redirect, url_for
+from flask import Flask, g, render_template, request, redirect, url_for, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
 # SQLite database path
 DB_PATH = 'db.sqlite3'
@@ -40,20 +42,37 @@ def init_db():
     with app.open_resource('example_reports.sql') as f:
         db.executescript(f.read().decode('utf8'))
 
-def get_reports():
-    """
-    Returns a list of reports sorted by name.
-    """
+def get_reports(sort_by, search_query, event_type):
     conn = get_db()
     cur = conn.cursor()
 
+    # Base query with placeholders for filtering and sorting
     query = '''
-SELECT name, event
-FROM reports
-ORDER BY name'''
+    SELECT name, event, event_type
+    FROM reports
+    WHERE name LIKE ?
+    '''
 
-    cur.execute(query)
+    query_params = [f'%{search_query}%']
+
+    # Add filtering by event_type if provided
+    if event_type:
+        query += ' AND event_type = ?'
+        query_params.append(event_type)
+
+    # Add sorting logic
+    if sort_by == 'event':
+        query += ' ORDER BY event'
+    elif sort_by == 'event_desc':
+        query += ' ORDER BY event DESC'
+    elif sort_by == 'name_desc':
+        query += ' ORDER BY name DESC'
+    else:  # Default is sorting by name
+        query += ' ORDER BY name'
+
+    cur.execute(query, query_params)
     return cur.fetchall()
+
 
 @app.route('/index')
 def index():
@@ -64,15 +83,21 @@ def index():
     return render_template('index.html')
 
 @app.route('/reports')
+@app.route('/reports')
+@app.route('/reports')
 def reports():
-    """
-    Serves a page which shows the items sorted by name. See the file
-    templates/items.html for the template. The list returned from get_items()
-    is passed as the positional parameter items, which is then accessible
-    within the template.
-    """
-    return render_template('reports.html', reports=get_reports())
+    search_query = request.args.get('search', '').strip()
+    event_type = request.args.get('event_type', '')
+    sort_by = request.args.get('sort', 'name')  # Default sort by name
+    reports = get_reports(sort_by, search_query, event_type)  # Pass all parameters
 
+    # Fetch unique event types for the dropdown
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT DISTINCT event_type FROM reports')
+    event_types = cur.fetchall()
+
+    return render_template('reports.html', reports=reports, event_types=event_types)
 # Add route to display events and add a new event
 @app.route('/events', methods=['GET', 'POST'])
 def events():
@@ -95,7 +120,7 @@ def events():
 
         # Redirect back to the events page after adding the event
         return redirect(url_for('events'))
-
+    
     # Fetch all events to display on the page
     cur = db.execute('SELECT id, event_name, attended FROM events')
     events_list = cur.fetchall()
@@ -103,20 +128,76 @@ def events():
     return render_template('events.html', events=events_list)
 
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        role = request.form.get('role')
+
+        db = get_db()
+        cursor = db.cursor()
+
+        # Check if the email is already registered
+        cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            flash('Email already registered. Please log in.')
+            return redirect(url_for('login'))
+        
+        if password != confirm_password:
+            flash('Passwords fields do not match')
+            return redirect(url_for('register'))
+        
+        if not role:
+            flash('Please select a role.')
+            return redirect(url_for('register'))
+
+
+        # Insert the new user into the users table
+        hashed_password = generate_password_hash(password)
+        cursor.execute('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', (email, hashed_password, role))
+        db.commit()
+
+        flash('Registration successful! Please log in.')
+        return redirect(url_for('login'))
+    return render_template('registration.html')
+
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         # Handle form data (login logic)
-        username = request.form['username']
+        email = request.form['username']
         password = request.form['password']
+
+        db = get_db()
+        cursor = db.cursor()
+
         # Add logic to authenticate user
-        return redirect(url_for('index'))
+        cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+        user = cursor.fetchone()
+
+        if user and check_password_hash(user[2], password):
+            # User is authenticated, redirect to the index page
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid email or password')
+
     return render_template('login.html')
 
 
-@app.route('/description')
+@app.route('/description', methods=['GET', 'POST'])
 def event_descript():
     db = get_db()
+    
+    if (request.method == 'POST'):
+        
+    
+    
+    
     cur = db.execute('SELECT event_name, event_description FROM events')
     event_description = cur.fetchall()
 

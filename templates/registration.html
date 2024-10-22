@@ -35,21 +35,32 @@
           <input type="email" name="email" placeholder="Email" required class="form-input">
           <input type="password" name="password" placeholder="Password" required class="form-input">
           <input type="password" name="confirm_password" placeholder="Confirm Password" required class="form-input">
+          
+          <!-- Role Selection -->
+<div class="form-group">
+  <label for="role" class="form-label">Select your role:</label>
+  <div class="form-input radio-group">
+      <div class="radio-option">
+          <input type="radio" name="role" id="student" value="student" required>
+          <label for="student">Student</label>
+      </div>
+      <div class="radio-option">
+          <input type="radio" name="role" id="faculty" value="faculty" required>
+          <label for="faculty">Faculty</label>
+      </div>
+  </div>
+</div>
+
           <button type="submit" class="form-button">Register</button>
         </form>
         <p>Already have an account? <a href="{{ url_for('login') }}">Log in here</a>.</p>
       </div>
 
-      <!-- Optional Logo Image (if needed) -->
+      <!-- Xavier Logo image -->
       <div class="login-image">
         <img src="https://www.xavier.edu/brand/images/new-logos/signature-vertical-logo-navy-whitebg.png" alt="Xavier Logo">
       </div>
     </div>
-        <div class="form-group">
-          <label>Select your role:</label><br>
-          <input type="radio" name="role" value="student" required> Student<br>
-          <input type="radio" name="role" value="faculty" required> Faculty<br>
-      </div>
 
   </body>
 </html>

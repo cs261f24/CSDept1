@@ -192,16 +192,16 @@ def login():
 @app.route('/description', methods=['GET', 'POST'])
 def event_descript():
     db = get_db()
-    
-    if (request.method == 'POST'):
-        
-    
-    
-    
-    cur = db.execute('SELECT event_name, event_description FROM events')
-    event_description = cur.fetchall()
 
-    return render_template('eventbase.html', event_descripion=event_description)
+    if (request.method == 'POST'):
+        new_description = request.form['edit_event_description']
+        event_id = request.form['event[id]']
+        db.execute("UPDATE events SET event_description = " + new_description + " WHERE id = ?", (event_id))
+
+    cur = db.execute('SELECT event_name, event_description FROM events')
+    events = cur.fetchall()
+
+    return render_template('eventbase.html', events=events)
 
 
 if __name__ == '__main__':

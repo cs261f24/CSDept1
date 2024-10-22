@@ -228,7 +228,7 @@ section {
 .fc-toolbar button {
     background-color: #0056b3; /* Button background color */
     color: white; /* Button text color */
-    border: none; /* No border */
+    border: yellow; /* No border */
     border-radius: 5px; /* Rounded corners */
     padding: 5px 10px; /* Padding for buttons */
     cursor: pointer; /* Pointer cursor on hover */

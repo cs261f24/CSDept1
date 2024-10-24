@@ -193,9 +193,9 @@ def login():
 def event_descript():
     db = get_db()   
     cur = db.execute('SELECT event_name, event_description FROM events')
-    event_description = cur.fetchall()
+    events = cur.fetchall()
 
-    return render_template('eventbase.html', event_descripion=event_description)
+    return render_template('eventbase.html', events=events)
 
 
 if __name__ == '__main__':

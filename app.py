@@ -83,8 +83,6 @@ def index():
         return render_template('login.html')
 
 @app.route('/reports')
-@app.route('/reports')
-@app.route('/reports')
 def reports():
     search_query = request.args.get('search', '').strip()
     event_type = request.args.get('event_type', '')

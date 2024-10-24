@@ -194,11 +194,12 @@ def event_descript():
     db = get_db()
 
     if (request.method == 'POST'):
-        event_id = request.form['edit_event_descript_id']
+        event_id = request.form['edit_event_id']
         new_description = request.form['edit_event_description']
-        print("UPDATE events SET event_description = " + new_description + " WHERE id = " + event_id + " ")
+        db.execute("UPDATE events SET event_description = ? WHERE id = ?", (new_description, event_id,))
+        db.commit()
 
-    cur = db.execute('SELECT event_name, event_description FROM events')
+    cur = db.execute('SELECT id, event_name, event_description FROM events')
     events = cur.fetchall()
 
     return render_template('eventbase.html', events=events)

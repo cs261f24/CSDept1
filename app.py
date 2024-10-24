@@ -191,6 +191,7 @@ def login():
 
 @app.route('/description', methods=['GET', 'POST'])
 def event_descript():
+
     db = get_db()
 
     if (request.method == 'POST'):
@@ -200,6 +201,10 @@ def event_descript():
         db.commit()
 
     cur = db.execute('SELECT id, event_name, event_description FROM events')
+    events = cur.fetchall()
+
+    db = get_db()   
+    cur = db.execute('SELECT event_name, event_description FROM events')
     events = cur.fetchall()
 
     return render_template('eventbase.html', events=events)

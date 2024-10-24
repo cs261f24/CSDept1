@@ -191,13 +191,7 @@ def login():
 
 @app.route('/description', methods=['GET', 'POST'])
 def event_descript():
-    db = get_db()
-    
-    if (request.method == 'POST'):
-        
-    
-    
-    
+    db = get_db()   
     cur = db.execute('SELECT event_name, event_description FROM events')
     event_description = cur.fetchall()
 

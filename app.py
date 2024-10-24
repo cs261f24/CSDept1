@@ -1,9 +1,9 @@
 import sqlite3
-from flask import Flask, g, render_template, request, redirect, url_for, flash
+from flask import Flask, g, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = 'CS_Department_1_is_better'
 
 # SQLite database path
 DB_PATH = 'db.sqlite3'
@@ -76,11 +76,11 @@ def get_reports(sort_by, search_query, event_type):
 
 @app.route('/index')
 def index():
-    """
-    Serves the index page with welcome text.
-    """
-    print("Index page accessed")
-    return render_template('index.html')
+    user = session.get('user')
+    if user:
+        return render_template('index.html', user=user)
+    else:
+        return render_template('login.html')
 
 @app.route('/reports')
 @app.route('/reports')
@@ -135,6 +135,8 @@ def register():
         password = request.form['password']
         confirm_password = request.form['confirm_password']
         role = request.form.get('role')
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
 
         db = get_db()
         cursor = db.cursor()
@@ -158,7 +160,7 @@ def register():
 
         # Insert the new user into the users table
         hashed_password = generate_password_hash(password)
-        cursor.execute('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', (email, hashed_password, role))
+        cursor.execute('INSERT INTO users (email, password, role, first_name, last_name) VALUES (?, ?, ?, ?, ?)', (email, hashed_password, role, first_name, last_name))
         db.commit()
 
         flash('Registration successful! Please log in.')
@@ -181,6 +183,10 @@ def login():
         user = cursor.fetchone()
 
         if user and check_password_hash(user[2], password):
+            # Fetch the first and last name to display on home page
+            first_name = user[4]
+            last_name = user[5]
+            session['user'] = {'first_name': first_name, 'last_name': last_name}
             # User is authenticated, redirect to the index page
             return redirect(url_for('index'))
         else:

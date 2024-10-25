@@ -8,6 +8,7 @@ app.secret_key = 'your_secret_key'
 # SQLite database path
 DB_PATH = 'db.sqlite3'
 
+
 def get_db():
     """
     Returns a database connection.
@@ -33,6 +34,7 @@ def close_db(exception):
     if db is not None:
         db.close()
 
+
 def init_db():
     """
     Initialize the database with tables.
@@ -41,6 +43,7 @@ def init_db():
     
     with app.open_resource('example_reports.sql') as f:
         db.executescript(f.read().decode('utf8'))
+
 
 def get_reports(sort_by, search_query, event_type):
     conn = get_db()
@@ -82,8 +85,7 @@ def index():
     print("Index page accessed")
     return render_template('index.html')
 
-@app.route('/reports')
-@app.route('/reports')
+
 @app.route('/reports')
 def reports():
     search_query = request.args.get('search', '').strip()
@@ -98,6 +100,8 @@ def reports():
     event_types = cur.fetchall()
 
     return render_template('reports.html', reports=reports, event_types=event_types)
+
+
 # Add route to display events and add a new event
 @app.route('/events', methods=['GET', 'POST'])
 def events():
@@ -113,7 +117,7 @@ def events():
             db.execute('INSERT INTO events (event_name, event_description) VALUES (?,?)', (event_name, description))
             db.commit()
         elif 'remove_event_id' in request.form:
-            #Remove an existing event
+            # Remove an existing event
             event_id = request.form['remove_event_id']
             db.execute('DELETE FROM events WHERE id = ?', (event_id,))
             db.commit()
@@ -154,7 +158,6 @@ def register():
         if not role:
             flash('Please select a role.')
             return redirect(url_for('register'))
-
 
         # Insert the new user into the users table
         hashed_password = generate_password_hash(password)
@@ -204,7 +207,7 @@ def event_descript():
     events = cur.fetchall()
 
     db = get_db()   
-    cur = db.execute('SELECT event_name, event_description FROM events')
+    cur = db.execute('SELECT id, event_name, event_description FROM events')
     events = cur.fetchall()
 
     return render_template('eventbase.html', events=events)

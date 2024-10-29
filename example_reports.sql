@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS events;
 CREATE TABLE events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_name TEXT NOT NULL,
+    event_description TEXT NOT NULL,
     attended INTEGER NOT NULL DEFAULT 0
 );
 DROP TABLE IF EXISTS users;

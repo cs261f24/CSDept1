@@ -331,3 +331,20 @@ section {
 .sort-indicator img {
     filter: invert(0); /* Keep the icon color */
 }
+
+/* Print Button styling */
+.print-button {
+    background-color: #0C2340; /* Adjust the color to match your theme */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover effect for the print button */
+.print-button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}

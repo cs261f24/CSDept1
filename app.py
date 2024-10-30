@@ -51,7 +51,7 @@ def get_reports(sort_by, search_query, event_type):
 
     # Base query with placeholders for filtering and sorting
     query = '''
-    SELECT name, event, event_type
+    SELECT name, event, event_type, date_attended
     FROM reports
     WHERE name LIKE ?
     '''
@@ -70,8 +70,12 @@ def get_reports(sort_by, search_query, event_type):
         query += ' ORDER BY event DESC'
     elif sort_by == 'name_desc':
         query += ' ORDER BY name DESC'
+    elif sort_by == "date_attended":
+        query += ' ORDER BY date_attended'  # Ascending order
+    elif sort_by == "date_attended_desc":
+        query += ' ORDER BY date_attended DESC'  # Descending order
     else:  # Default is sorting by name
-        query += ' ORDER BY name'
+            query += ' ORDER BY name'
 
     cur.execute(query, query_params)
     return cur.fetchall()

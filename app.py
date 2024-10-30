@@ -8,6 +8,7 @@ app.secret_key = 'CS_Department_1_is_better'
 # SQLite database path
 DB_PATH = 'db.sqlite3'
 
+
 def get_db():
     """
     Returns a database connection.
@@ -33,6 +34,7 @@ def close_db(exception):
     if db is not None:
         db.close()
 
+
 def init_db():
     """
     Initialize the database with tables.
@@ -41,6 +43,7 @@ def init_db():
     
     with app.open_resource('example_reports.sql') as f:
         db.executescript(f.read().decode('utf8'))
+
 
 def get_reports(sort_by, search_query, event_type):
     conn = get_db()
@@ -116,11 +119,12 @@ def events():
         if 'event_name' in request.form:
             # Add new event
             event_name = request.form['event_name']
+            description = 'placeholder descript'
             # Insert the new event into the database
-            db.execute('INSERT INTO events (event_name) VALUES (?)', (event_name,))
+            db.execute('INSERT INTO events (event_name, event_description) VALUES (?,?)', (event_name, description))
             db.commit()
         elif 'remove_event_id' in request.form:
-            #Remove an existing event
+            # Remove an existing event
             event_id = request.form['remove_event_id']
             db.execute('DELETE FROM events WHERE id = ?', (event_id,))
             db.commit()
@@ -142,6 +146,7 @@ def events():
     attended_event_ids = {row['event_id'] for row in attended_cursor.fetchall()}
 
     return render_template('events.html', events=events_list, attended_event_ids=attended_event_ids)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -172,7 +177,6 @@ def register():
             flash('Please select a role.')
             return redirect(url_for('register'))
 
-
         # Insert the new user into the users table
         hashed_password = generate_password_hash(password)
         cursor.execute('INSERT INTO users (email, password, role, first_name, last_name) VALUES (?, ?, ?, ?, ?)', (email, hashed_password, role, first_name, last_name))
@@ -181,6 +185,7 @@ def register():
         flash('Registration successful! Please log in.')
         return redirect(url_for('login'))
     return render_template('registration.html')
+
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -209,6 +214,28 @@ def login():
             flash('Invalid email or password')
 
     return render_template('login.html')
+
+
+@app.route('/description', methods=['GET', 'POST'])
+def event_descript():
+
+    db = get_db()
+
+    if (request.method == 'POST'):
+        event_id = request.form['edit_event_id']
+        new_description = request.form['edit_event_description']
+        db.execute("UPDATE events SET event_description = ? WHERE id = ?", (new_description, event_id,))
+        db.commit()
+
+    cur = db.execute('SELECT id, event_name, event_description FROM events')
+    events = cur.fetchall()
+
+    db = get_db()   
+    cur = db.execute('SELECT id, event_name, event_description FROM events')
+    events = cur.fetchall()
+
+    return render_template('eventbase.html', events=events)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS reports (
 DROP TABLE IF EXISTS events;
 CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    event_name TEXT NOT NULL
+    event_name TEXT NOT NULL,
+    event_description TEXT NOT NULL
 );
 
 DROP TABLE IF EXISTS users;

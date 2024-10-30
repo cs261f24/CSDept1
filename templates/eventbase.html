@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSDept1 - Event Description</title>
+    <!-- Link to CSS using Flask's url_for function -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    
+</head>
+  <body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <ul>
+          <nav class="navbar">
+              <ul>
+                  <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
+                  <li><a href="{{ url_for('reports') }}">View Reports</a></li>
+                  <li><a href="{{ url_for('events') }}">View Events</a></li>
+              </ul>
+          </nav>
+      </ul>
+  </nav>
+
+  <h1>Event Description</h1>
+
+  <div class = "container">
+    
+
+    <ul>
+
+      {% for event in events %} 
+        <li>
+          {{ event['event_name'] }} - {{ event['event_description'] }}
+
+          <form method="POST" action="/description" style="display: inline;">
+            <input type="text" name="edit_event_description" placeholder="Edit Description">
+            <input type="hidden" name="edit_event_id" value="{{ event['id'] }}">
+            <button type="submit">Edit</button>
+        </form>
+        </li>
+      {% endfor%}
+
+    </ul>
+    </div>
+    <a href="/index">Back to Home</a>
+  
+  </body>
+</html>

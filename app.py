@@ -123,10 +123,13 @@ def events():
         if 'event_name' in request.form:
             # Add new event
             event_name = request.form['event_name']
-            description = 'placeholder descript'
+            description = request.form['event_description']
+            date = request.form['event_date']
+            
             # Insert the new event into the database
-            db.execute('INSERT INTO events (event_name, event_description) VALUES (?,?)', (event_name, description))
+            db.execute('INSERT INTO events (event_name, event_description, event_date) VALUES (?,?,?)', (event_name, description, date))
             db.commit()
+            
         elif 'remove_event_id' in request.form:
             # Remove an existing event
             event_id = request.form['remove_event_id']
@@ -235,10 +238,10 @@ def event_descript():
     events = cur.fetchall()
 
     db = get_db()   
-    cur = db.execute('SELECT id, event_name, event_description FROM events')
+    cur = db.execute('SELECT id, event_name, event_description, event_date FROM events')
     events = cur.fetchall()
 
-    return render_template('eventbase.html', events=events)
+    return render_template('description.html', events=events)
 
 
 if __name__ == '__main__':

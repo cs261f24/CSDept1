@@ -51,7 +51,7 @@ def get_reports(sort_by, search_query, event_type):
 
     # Base query with placeholders for filtering and sorting
     query = '''
-    SELECT name, event, event_type
+    SELECT name, event, event_type, date_attended
     FROM reports
     WHERE name LIKE ?
     '''
@@ -70,8 +70,12 @@ def get_reports(sort_by, search_query, event_type):
         query += ' ORDER BY event DESC'
     elif sort_by == 'name_desc':
         query += ' ORDER BY name DESC'
+    elif sort_by == "date_attended":
+        query += ' ORDER BY date_attended'  # Ascending order
+    elif sort_by == "date_attended_desc":
+        query += ' ORDER BY date_attended DESC'  # Descending order
     else:  # Default is sorting by name
-        query += ' ORDER BY name'
+            query += ' ORDER BY name'
 
     cur.execute(query, query_params)
     return cur.fetchall()
@@ -81,10 +85,16 @@ def get_reports(sort_by, search_query, event_type):
 def index():
     user = session.get('user')
     if user:
-        return render_template('index.html', user=user)
+        db = get_db()
+        cursor = db.execute('''
+            SELECT events.event_name FROM events
+            JOIN user_events ON events.id = user_events.event_id
+            WHERE user_events.user_id = ?
+        ''', (user['id'],))
+        attended_events = cursor.fetchall()
+        return render_template('index.html', user=user, attended_events=attended_events)
     else:
         return render_template('login.html')
-
 
 @app.route('/reports')
 def reports():
@@ -101,14 +111,15 @@ def reports():
 
     return render_template('reports.html', reports=reports, event_types=event_types)
 
-
 # Add route to display events and add a new event
 @app.route('/events', methods=['GET', 'POST'])
 def events():
     db = get_db()
+    user_id = session['user']['id']
 
     if request.method == 'POST':
-        # Check if the request is to add or remove an event
+
+        # Check if the request is to add, remove, or mark an event as attended
         if 'event_name' in request.form:
             # Add new event
             event_name = request.form['event_name']
@@ -121,15 +132,24 @@ def events():
             event_id = request.form['remove_event_id']
             db.execute('DELETE FROM events WHERE id = ?', (event_id,))
             db.commit()
+        elif 'attend_event_id' in request.form:
+            # Mark event as attended
+            event_id = request.form['attend_event_id']
+            db.execute('INSERT OR IGNORE INTO user_events (user_id, event_id) VALUES (?, ?)', (user_id, event_id))
+            db.commit()
 
         # Redirect back to the events page after adding the event
         return redirect(url_for('events'))
     
     # Fetch all events to display on the page
-    cur = db.execute('SELECT id, event_name, attended FROM events')
+    cur = db.execute('SELECT id, event_name FROM events')
     events_list = cur.fetchall()
 
-    return render_template('events.html', events=events_list)
+    # Fetch all attended events for this user
+    attended_cursor = db.execute('SELECT event_id FROM user_events WHERE user_id = ?', (user_id,))
+    attended_event_ids = {row['event_id'] for row in attended_cursor.fetchall()}
+
+    return render_template('events.html', events=events_list, attended_event_ids=attended_event_ids)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -187,9 +207,11 @@ def login():
 
         if user and check_password_hash(user[2], password):
             # Fetch the first and last name to display on home page
+            user_id = user[0]
             first_name = user[4]
             last_name = user[5]
-            session['user'] = {'first_name': first_name, 'last_name': last_name}
+
+            session['user'] = {'id': user_id, 'first_name': first_name, 'last_name': last_name}
             # User is authenticated, redirect to the index page
             return redirect(url_for('index'))
         else:

@@ -59,6 +59,15 @@
                                 <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Event Descending" class="sort-icon">
                             </a>
                         </th>
+                        <th>
+                            Date Attended
+                            <a href="/reports?sort=date_attended&event_type={{ request.args.get('event_type', '') }}&search={{ request.args.get('search', '') }}" class="sort-indicator">
+                                <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Date Ascending" class="sort-icon">
+                            </a>
+                            <a href="/reports?sort=date_attended_desc&event_type={{ request.args.get('event_type', '') }}&search={{ request.args.get('search', '') }}" class="sort-indicator">
+                                <img src="https://static-00.iconduck.com/assets.00/sort-icon-512x410-1kpy040x.png" alt="Sort by Date Descending" class="sort-icon">
+                            </a>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -66,15 +75,24 @@
                         <tr>
                             <td>{{ report['name'] }}</td>
                             <td>{{ report['event'] }}</td>
+                            <td>{{ report['date_attended'] }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
 
         <!-- Print report button -->
-        <button id="printReportsButton" class="print-button">Print Report</button>
+        <button id="printReportsButton" class="print-button" onclick="printReport()">Print Report</button>
         </div>
     </section>
+
+<!-- Function for print button -->
+<script>
+    function printReport() {
+        window.print();
+    }
+</script>
+
     
     <!-- Home button on bottom of page -->
     <div class="centered">

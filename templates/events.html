@@ -6,8 +6,6 @@
     <title>CSDept1 - Events</title>
     <!-- Link to CSS using Flask's url_for function -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    
-    
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
     
 </head>
@@ -37,7 +35,21 @@
                 <!-- Displaying the events list -->
                 {% for event in events %}
                     <li>
-                       <a href = "/description">{{ event['event_name'] }} - {% if event['attended'] == 0 %} Not Attended {% else %} Attended {% endif %}</a>
+                        <a href="{{ url_for('event_descript') }}">{{ event['event_name'] }}</a>
+                        - {{ event['event_description'] }} 
+
+                        {% if event['id'] in attended_event_ids %} 
+                            Attended 
+                        {% else %} 
+                           Not Attended 
+                        
+                        <!-- Form to attend an event -->
+                        <form method="POST" action="/events" style="display: inline;">
+                            <input type="hidden" name="attend_event_id" value="{{ event['id'] }}">
+                            <button type="submit">Mark as Attended</button>
+                        </form>
+                        {% endif %}
+
                         <!-- Form to remove an event -->
                         <form method="POST" action="/events" style="display: inline;">
                             <input type="hidden" name="remove_event_id" value="{{ event['id'] }}">
@@ -46,7 +58,6 @@
                     </li>
                 {% endfor %}
             </ul>
-            <a href="/index">Back to Home</a>
         </div>
 
         <!-- Calendar Section -->
@@ -71,6 +82,11 @@
             calendar.render();
         });
     </script>
+
+    <!-- Home button on bottom of page -->
+    <div class="centered">
+        <a href="/index" class="back-home">Back to Home</a>
+    </div>
 
 </body>
 </html>

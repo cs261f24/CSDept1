@@ -25,5 +25,16 @@
      <div class="welcome-message">
         <h1>Welcome, {{user.first_name }} {{user.last_name }}!</h1>
     </div>
+    <h2>Events Attended</h2>
+    <table>
+        <tr>
+            <th>Event Name</th>
+        </tr>
+        {% for event in attended_events %}
+            <tr>
+                <td>{{ event['event_name'] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>

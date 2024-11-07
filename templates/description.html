@@ -35,7 +35,9 @@
 
       {% for event in events %} 
         <li>
+
           {{ event['event_name'] }} - {{ event['event_description'] }} {{ event['event_date'] }}
+
 
           <form method="POST" action="/description" style="display: inline;">
             <input type="text" name="edit_event_description" placeholder="Edit Description">

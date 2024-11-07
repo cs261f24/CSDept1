@@ -16,9 +16,9 @@
     <!-- Navigation Bar -->
     <nav class="navbar">
       <ul>
+          <li class="logo">Welcome to the Website!</li>
           <nav class="navbar">
               <ul>
-                  <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
                   <li><a href="{{ url_for('reports') }}">View Reports</a></li>
                   <li><a href="{{ url_for('events') }}">View Events</a></li>
               </ul>
@@ -35,7 +35,7 @@
 
       {% for event in events %} 
         <li>
-          {{ event['event_name'] }} - {{ event['event_description'] }}
+          {{ event['event_name'] }} - {{ event['event_description'] }} {{ event['event_date'] }}
 
           <form method="POST" action="/description" style="display: inline;">
             <input type="text" name="edit_event_description" placeholder="Edit Description">

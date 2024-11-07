@@ -27,7 +27,9 @@
         <!-- Form for adding new events -->
         <div class="event-list">
             <form method="POST" action="/events">
-                <input type="text" name="event_name" placeholder="New Event" required>
+                <input type="text" name="event_name" placeholder="Event Name" required>
+                <input type="text" name="event_description" placeholder="Event Description" required>
+                <input type="date" name="event_date" required>
                 <button type="submit">Add Event</button>
             </form>
 

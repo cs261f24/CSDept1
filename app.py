@@ -125,9 +125,11 @@ def events():
         if user_role == 'faculty' and 'event_name' in request.form:
             # Add new event
             event_name = request.form['event_name']
-            description = 'placeholder descript'
+            description = request.form['event_description']
+            date = request.form['event_date']
+            
             # Insert the new event into the database
-            db.execute('INSERT INTO events (event_name, event_description) VALUES (?,?)', (event_name, description))
+            db.execute('INSERT INTO events (event_name, event_description, event_date) VALUES (?,?,?)', (event_name, description, date))
             db.commit()
         elif user_role == 'faculty' and 'remove_event_id' in request.form:
             # Remove an existing event

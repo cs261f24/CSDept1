@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, g, render_template, request, redirect, url_for, flash, session
+from flask import Flask, g, render_template, request, redirect, url_for, flash, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
@@ -8,18 +8,12 @@ app.secret_key = 'CS_Department_1_is_better'
 # SQLite database path
 DB_PATH = 'db.sqlite3'
 
-
 def get_db():
-    """
-    Returns a database connection.
-    Creates a new connection if it doesn't exist.
-    """
     if 'db' not in g:
         g.db = sqlite3.connect(DB_PATH)
         g.db.row_factory = sqlite3.Row
     return g.db
 
-# For initializing the database through command-line
 @app.cli.command('init-db')
 def init_db_command():
     init_db()
@@ -27,25 +21,19 @@ def init_db_command():
 
 @app.teardown_appcontext
 def close_db(exception):
-    """
-    Close the database connection after the request ends.
-    """
     db = g.pop('db', None)
     if db is not None:
         db.close()
 
-
 def init_db():
-    """
-    Initialize the database with tables.
-    """
     db = get_db()
-    
     with app.open_resource('example_reports.sql') as f:
         db.executescript(f.read().decode('utf8'))
 
-
 def get_reports(sort_by, search_query, event_type):
+    """
+    Retrieves reports from the database with optional sorting, searching, and filtering.
+    """
     conn = get_db()
     cur = conn.cursor()
 
@@ -55,15 +43,14 @@ def get_reports(sort_by, search_query, event_type):
     FROM reports
     WHERE name LIKE ?
     '''
-
-    query_params = [f'%{search_query}%']
+    query_params = [f'%{search_query}%']  # Using LIKE for partial match search
 
     # Add filtering by event_type if provided
     if event_type:
         query += ' AND event_type = ?'
         query_params.append(event_type)
 
-    # Add sorting logic
+    # Add sorting logic based on the sort_by parameter
     if sort_by == 'event':
         query += ' ORDER BY event'
     elif sort_by == 'event_desc':
@@ -71,15 +58,15 @@ def get_reports(sort_by, search_query, event_type):
     elif sort_by == 'name_desc':
         query += ' ORDER BY name DESC'
     elif sort_by == "date_attended":
-        query += ' ORDER BY date_attended'  # Ascending order
+        query += ' ORDER BY date_attended'
     elif sort_by == "date_attended_desc":
-        query += ' ORDER BY date_attended DESC'  # Descending order
-    else:  # Default is sorting by name
-            query += ' ORDER BY name'
+        query += ' ORDER BY date_attended DESC'
+    else:  # Default sorting by name
+        query += ' ORDER BY name'
 
+    # Execute the query with the accumulated parameters
     cur.execute(query, query_params)
     return cur.fetchall()
-
 
 @app.route('/index')
 def index():
@@ -89,21 +76,20 @@ def index():
         cursor = db.execute('''
             SELECT events.event_name FROM events
             JOIN user_events ON events.id = user_events.event_id
-            WHERE user_events.user_id = ?
+            WHERE user_events.user_id = ? 
         ''', (user['id'],))
         attended_events = cursor.fetchall()
         return render_template('index.html', user=user, attended_events=attended_events)
     else:
-        return render_template('login.html')
+        return redirect(url_for('login'))
 
 @app.route('/reports')
 def reports():
     search_query = request.args.get('search', '').strip()
     event_type = request.args.get('event_type', '')
-    sort_by = request.args.get('sort', 'name')  # Default sort by name
-    reports = get_reports(sort_by, search_query, event_type)  # Pass all parameters
+    sort_by = request.args.get('sort', 'name')
+    reports = get_reports(sort_by, search_query, event_type)
 
-    # Fetch unique event types for the dropdown
     conn = get_db()
     cur = conn.cursor()
     cur.execute('SELECT DISTINCT event_type FROM reports')
@@ -111,45 +97,53 @@ def reports():
 
     return render_template('reports.html', reports=reports, event_types=event_types)
 
-# Add route to display events and add a new event
 @app.route('/events', methods=['GET', 'POST'])
 def events():
     db = get_db()
     user = session.get('user')
     user_id = user['id']
     user_role = user.get('role')
+    selected_date = request.args.get('selected_date')
 
     if request.method == 'POST':
-
-        # Check if the request is to add, remove, or mark an event as attended
         if user_role == 'faculty' and 'event_name' in request.form:
-            # Add new event
+            #Add new event
             event_name = request.form['event_name']
             description = request.form['event_description']
             date = request.form['event_date']
-            
-            # Insert the new event into the database
-            db.execute('INSERT INTO events (event_name, event_description, event_date) VALUES (?,?,?)', (event_name, description, date))
+            db.execute('INSERT INTO events (event_name, event_description, event_date) VALUES (?, ?, ?)', (event_name, description, date))
             db.commit()
+            
         elif user_role == 'faculty' and 'remove_event_id' in request.form:
             # Remove an existing event
             event_id = request.form['remove_event_id']
             db.execute('DELETE FROM events WHERE id = ?', (event_id,))
             db.commit()
+            
         elif user_role == 'student' and 'attend_event_id' in request.form:
             # Mark event as attended
             event_id = request.form['attend_event_id']
             db.execute('INSERT OR IGNORE INTO user_events (user_id, event_id) VALUES (?, ?)', (user_id, event_id))
             db.commit()
 
-        # Redirect back to the events page after adding the event
         return redirect(url_for('events'))
-    
-    # Fetch all events to display on the page
-    cur = db.execute('SELECT id, event_name FROM events')
-    events_list = cur.fetchall()
 
-    # Fetch all attended events for this user
+    if selected_date:
+        events = db.execute('SELECT id, event_name, event_description FROM events WHERE event_date = ?', (selected_date,)).fetchall()
+        attended_events = db.execute('SELECT event_id FROM user_events WHERE user_id = ?', (user_id,)).fetchall()
+        attended_event_ids = {row['event_id'] for row in attended_events}
+        events_data = [
+            {
+                'id': event['id'],
+                'event_name': event['event_name'],
+                'event_description': event['event_description'],
+                'attended': event['id'] in attended_event_ids
+            }
+            for event in events
+        ]
+        return jsonify(events=events_data)
+
+    events_list = db.execute('SELECT id, event_name FROM events').fetchall()
     attended_cursor = db.execute('SELECT event_id FROM user_events WHERE user_id = ?', (user_id,))
     attended_event_ids = {row['event_id'] for row in attended_cursor.fetchall()}
 
@@ -157,7 +151,6 @@ def events():
         return render_template('events_student.html', events=events_list, attended_event_ids=attended_event_ids)
     else:
         return render_template('events.html', events=events_list, attended_event_ids=attended_event_ids)
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -171,8 +164,6 @@ def register():
 
         db = get_db()
         cursor = db.cursor()
-
-        # Check if the email is already registered
         cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
         existing_user = cursor.fetchone()
 
@@ -188,7 +179,6 @@ def register():
             flash('Please select a role.')
             return redirect(url_for('register'))
 
-        # Insert the new user into the users table
         hashed_password = generate_password_hash(password)
         cursor.execute('INSERT INTO users (email, password, role, first_name, last_name) VALUES (?, ?, ?, ?, ?)', (email, hashed_password, role, first_name, last_name))
         db.commit()
@@ -201,14 +191,11 @@ def register():
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Handle form data (login logic)
         email = request.form['username']
         password = request.form['password']
 
         db = get_db()
         cursor = db.cursor()
-
-        # Add logic to authenticate user
         cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
         user = cursor.fetchone()
 
@@ -244,6 +231,6 @@ def event_descript(event_id):
     # Render the eventbase.html template with the specific event's data
     return render_template('eventbase.html', event=event)
 
-
 if __name__ == '__main__':
     app.run(debug=True)
+

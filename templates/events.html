@@ -35,7 +35,7 @@
                 <!-- Displaying the events list -->
                 {% for event in events %}
                     <li>
-                        <a href="{{ url_for('event_descript') }}">{{ event['event_name'] }}</a>
+                        <a href="{{ url_for('event_descript', event_id=event['id']) }}">{{ event['event_name'] }}</a>
                         - {{ event['event_description'] }} 
 
                         {% if event['id'] in attended_event_ids %} 
@@ -43,11 +43,6 @@
                         {% else %} 
                            Not Attended 
                         
-                        <!-- Form to attend an event -->
-                        <form method="POST" action="/events" style="display: inline;">
-                            <input type="hidden" name="attend_event_id" value="{{ event['id'] }}">
-                            <button type="submit">Mark as Attended</button>
-                        </form>
                         {% endif %}
 
                         <!-- Form to remove an event -->

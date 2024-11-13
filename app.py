@@ -115,24 +115,26 @@ def reports():
 @app.route('/events', methods=['GET', 'POST'])
 def events():
     db = get_db()
-    user_id = session['user']['id']
+    user = session.get('user')
+    user_id = user['id']
+    user_role = user.get('role')
 
     if request.method == 'POST':
 
         # Check if the request is to add, remove, or mark an event as attended
-        if 'event_name' in request.form:
+        if user_role == 'faculty' and 'event_name' in request.form:
             # Add new event
             event_name = request.form['event_name']
             description = 'placeholder descript'
             # Insert the new event into the database
             db.execute('INSERT INTO events (event_name, event_description) VALUES (?,?)', (event_name, description))
             db.commit()
-        elif 'remove_event_id' in request.form:
+        elif user_role == 'faculty' and 'remove_event_id' in request.form:
             # Remove an existing event
             event_id = request.form['remove_event_id']
             db.execute('DELETE FROM events WHERE id = ?', (event_id,))
             db.commit()
-        elif 'attend_event_id' in request.form:
+        elif user_role == 'student' and 'attend_event_id' in request.form:
             # Mark event as attended
             event_id = request.form['attend_event_id']
             db.execute('INSERT OR IGNORE INTO user_events (user_id, event_id) VALUES (?, ?)', (user_id, event_id))
@@ -149,7 +151,10 @@ def events():
     attended_cursor = db.execute('SELECT event_id FROM user_events WHERE user_id = ?', (user_id,))
     attended_event_ids = {row['event_id'] for row in attended_cursor.fetchall()}
 
-    return render_template('events.html', events=events_list, attended_event_ids=attended_event_ids)
+    if user_role == 'student':
+        return render_template('events_student.html', events=events_list, attended_event_ids=attended_event_ids)
+    else:
+        return render_template('events.html', events=events_list, attended_event_ids=attended_event_ids)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -210,8 +215,9 @@ def login():
             user_id = user[0]
             first_name = user[4]
             last_name = user[5]
+            role = user[3]
 
-            session['user'] = {'id': user_id, 'first_name': first_name, 'last_name': last_name}
+            session['user'] = {'id': user_id, 'first_name': first_name, 'last_name': last_name, 'role': role}
             # User is authenticated, redirect to the index page
             return redirect(url_for('index'))
         else:
@@ -220,25 +226,21 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/description', methods=['GET', 'POST'])
-def event_descript():
+@app.route('/event/<int:event_id>', methods=['GET', 'POST'])
+def event_descript(event_id):
 
+    # Query the database for the event with the given ID
     db = get_db()
-
-    if (request.method == 'POST'):
-        event_id = request.form['edit_event_id']
+    if request.method == 'POST':
         new_description = request.form['edit_event_description']
-        db.execute("UPDATE events SET event_description = ? WHERE id = ?", (new_description, event_id,))
+        db.execute("UPDATE events SET event_description = ? WHERE id = ?", (new_description, event_id))
         db.commit()
 
-    cur = db.execute('SELECT id, event_name, event_description FROM events')
-    events = cur.fetchall()
-
-    db = get_db()   
-    cur = db.execute('SELECT id, event_name, event_description FROM events')
-    events = cur.fetchall()
-
-    return render_template('eventbase.html', events=events)
+    cur = db.execute('SELECT id, event_name, event_description FROM events WHERE id = ?', (event_id,))
+    event = cur.fetchone()
+    
+    # Render the eventbase.html template with the specific event's data
+    return render_template('eventbase.html', event=event)
 
 
 if __name__ == '__main__':

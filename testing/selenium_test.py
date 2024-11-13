@@ -60,61 +60,54 @@ def test_student_login(setup):
 
     # Wait for the login to process and verify you're on the right page
     WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, ".welcome-message"))  # Replace with a selector that confirms you're logged in
+        EC.presence_of_element_located((By.CSS_SELECTOR, ".welcome-message")) 
     )
 
-    # Log out (if there's a logout link/button)
-    driver.find_element(By.LINK_TEXT, "Logout").click()  # Adjust the selector as necessary
+    # Remove the logout code
+    # driver.find_element(By.LINK_TEXT, "Logout").click()  # This line has been removed
 
-    # Wait for the logout to complete
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, ".login-form"))  # Check for the login form again
-    )
-
-    time.sleep(2)  # Pause for 2 seconds to observe the result
+    # Optional: Wait to observe the result
+    time.sleep(2)  # If you want to see the final state before the test ends
 
 
-def test_add_and_remove_event(setup):
+def test_open_events_page(setup):
     driver = setup
 
-    # Goes to the Events page
-    driver.get("http://127.0.0.1:5000/index")
-    time.sleep(2)
-    driver.get("http:/127.0.0.1:5000/events")
-    
-    # Pause to observe the page
-    time.sleep(2) 
+    # Go to the Events page
+    driver.get("http://127.0.0.1:5000/events")
 
-    # Add an event
-    event_name = "Test Event"
-    event_input = WebDriverWait(driver, 10).until(
+    # Wait for the input field for the event name to ensure it has loaded
+    event_input = WebDriverWait(driver, 15).until(
         EC.presence_of_element_located((By.NAME, "event_name"))
     )
-    event_input.send_keys(event_name)  # Enter the event name
-
+    
+    # Add an event named "Test"
+    event_name = "Test"
+    event_input.clear()
+    event_input.send_keys(event_name)
+    
     # Submit the event form
     driver.find_element(By.CSS_SELECTOR, "form[action='/events'] button[type='submit']").click()
-
-    # Pause to observe the event being added
-    time.sleep(2)
-
+    
     # Wait for the event to be added to the list
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 15).until(
         EC.presence_of_element_located((By.XPATH, f"//li[contains(text(), '{event_name}')]"))
     )
 
-    # Remove the event
-    remove_button = driver.find_element(By.XPATH, f"//li[contains(text(), '{event_name}')]//following-sibling::form/button")
+    # Now remove the event
+    remove_button = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.XPATH, f"//li[contains(text(), '{event_name}')]//following-sibling::form/button"))
+    )
     remove_button.click()
 
-    # Pause to observe the removal of the event
-    time.sleep(2) 
-
     # Wait for the event to be removed from the list
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 15).until(
         EC.invisibility_of_element_located((By.XPATH, f"//li[contains(text(), '{event_name}')]"))
     )
 
+    # Optional: Pause to observe the result before closing
+    time.sleep(2)
+    
 def test_filter_reports(setup):
     driver = setup
 

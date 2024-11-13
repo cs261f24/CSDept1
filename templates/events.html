@@ -4,22 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSDept1 - Events</title>
-    <!-- Link to CSS using Flask's url_for function -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
-    
 </head>
 <body>
-    <!-- Navigation Bar -->
     <nav class="navbar">
         <ul>
-            <nav class="navbar">
-                <ul>
-                    <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
-                    <li><a href="{{ url_for('reports') }}">View Reports</a></li>
-                    <li><a href="{{ url_for('events') }}">View Events</a></li>
-                </ul>
-            </nav>
+            <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
+            <li><a href="{{ url_for('reports') }}">View Reports</a></li>
+            <li><a href="{{ url_for('events') }}">View Events</a></li>
         </ul>
     </nav>
 
@@ -29,7 +22,7 @@
             <form method="POST" action="/events">
                 <input type="text" name="event_name" placeholder="Event Name" required>
                 <input type="text" name="event_description" placeholder="Event Description" required>
-                <input type="date" name="event_date" required>
+                <input type="date" name="event_date" id="event_date" required>
                 <button type="submit">Add Event</button>
             </form>
 
@@ -37,22 +30,19 @@
                 <!-- Displaying the events list -->
                 {% for event in events %}
                     <li>
-                        <a href="{{ url_for('event_descript') }}">{{ event['event_name'] }}</a>
-                        - {{ event['event_description'] }} 
+                        <a href="{{ url_for('event_descript') }}">{{ event['event_name'] }}</a> - {{ event['event_description'] }} 
 
-                        {% if event['id'] in attended_event_ids %} 
-                            Attended 
-                        {% else %} 
-                           Not Attended 
-                        
-                        <!-- Form to attend an event -->
-                        <form method="POST" action="/events" style="display: inline;">
-                            <input type="hidden" name="attend_event_id" value="{{ event['id'] }}">
-                            <button type="submit">Mark as Attended</button>
-                        </form>
+                        {% if event['id'] in attended_event_ids %}
+                            Attended
+                        {% else %}
+                            Not Attended
+
+                            <form method="POST" action="/events" style="display: inline;">
+                                <input type="hidden" name="attend_event_id" value="{{ event['id'] }}">
+                                <button type="submit">Mark as Attended</button>
+                            </form>
                         {% endif %}
 
-                        <!-- Form to remove an event -->
                         <form method="POST" action="/events" style="display: inline;">
                             <input type="hidden" name="remove_event_id" value="{{ event['id'] }}">
                             <button type="submit">Remove</button>
@@ -66,29 +56,46 @@
         <div id="calendar"></div>
     </div>
 
-    <!-- FullCalendar JS from CDN -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',  // Display month view by default
+                initialView: 'dayGridMonth',
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
                 events: [],  // Start with an empty events array
+                dateClick: function(info) {
+                    var selectedDate = info.dateStr;  // FullCalendar provides date in YYYY-MM-DD format
+
+                    // Send the selected date to the backend to filter events
+                    fetch(`/events?selected_date=${selectedDate}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Update the event list with the filtered events
+                            var eventList = document.querySelector('.event-list ul');
+                            eventList.innerHTML = '';  // Clear the existing events list
+                            data.events.forEach(event => {
+                                var li = document.createElement('li');
+                                li.innerHTML = `
+                                    <a href="/event_descript/${event.id}">${event.event_name}</a> - ${event.event_description}
+                                    ${event.attended ? 'Attended' : 'Not Attended'}
+                                `;
+                                eventList.appendChild(li);
+                            });
+                        });
+                }
             });
             calendar.render();
         });
     </script>
 
-    <!-- Home button on bottom of page -->
     <div class="centered">
         <a href="/index" class="back-home">Back to Home</a>
     </div>
-
 </body>
 </html>

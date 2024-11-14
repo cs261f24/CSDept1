@@ -30,18 +30,9 @@
                 <!-- Displaying the events list -->
                 {% for event in events %}
                     <li>
-                        <a href="{{ url_for('event_descript') }}">{{ event['event_name'] }}</a> - {{ event['event_description'] }} 
+                        <a href="{{ url_for('event_descript', event_id=event['id']) }}">{{ event['event_name'] }}</a>
+                        -
 
-                        {% if event['id'] in attended_event_ids %}
-                            Attended
-                        {% else %}
-                            Not Attended
-
-                            <form method="POST" action="/events" style="display: inline;">
-                                <input type="hidden" name="attend_event_id" value="{{ event['id'] }}">
-                                <button type="submit">Mark as Attended</button>
-                            </form>
-                        {% endif %}
 
                         <form method="POST" action="/events" style="display: inline;">
                             <input type="hidden" name="remove_event_id" value="{{ event['id'] }}">
@@ -82,14 +73,7 @@
                     data.events.forEach(event => {
                         var li = document.createElement('li');
                         li.innerHTML = `
-                            <a href="/description?id=${event.id}">${event.event_name}</a> - ${event.event_description} 
-                            ${event.attended ? 'Attended' : 'Not Attended'}
-                            
-                            ${!event.attended ? `
-                            <form method="POST" action="/events" style="display: inline;">
-                                <input type="hidden" name="attend_event_id" value="${event.id}">
-                                <button type="submit">Mark as Attended</button>
-                            </form>` : ''}
+                            <a href="/event/'<int:event_id>'">${event.event_name}</a> 
                             
                             <form method="POST" action="/events" style="display: inline;">
                                 <input type="hidden" name="remove_event_id" value="${event.id}">

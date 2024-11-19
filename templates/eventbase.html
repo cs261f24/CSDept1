@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ event['event_name'] }} Description</title>
+    <!-- Link to CSS using Flask's url_for function -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    
+</head>
+  <body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <ul>
+          <nav class="navbar">
+              <ul>
+                  <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
+                  <li><a href="{{ url_for('reports') }}">View Reports</a></li>
+                  <li><a href="{{ url_for('events') }}">View Events</a></li>
+              </ul>
+          </nav>
+      </ul>
+  </nav>
+
+  <h1>{{ event['event_name'] }} Description</h1>
+  <div class = "container">
+    
+    <ul>
+ 
+        <li>
+          {{ event['event_description'] }}
+
+          <form method="POST" action="{{ url_for('event_descript', event_id=event['id']) }}">
+            <input type="text" name="edit_event_description" placeholder="Edit Description">
+            <button type="submit">Edit</button>
+        </form>
+        </li>
+
+    </ul>
+    </div>
+    <a href="/index">Back to Home</a>
+  
+  </body>
+</html>

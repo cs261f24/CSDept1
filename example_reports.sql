@@ -14,7 +14,9 @@ CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_name TEXT NOT NULL,
     event_description TEXT NOT NULL,
-    event_date DATE NOT NULL
+    event_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME
 );
 
 DROP TABLE IF EXISTS users;

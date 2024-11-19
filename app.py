@@ -110,7 +110,9 @@ def events():
             event_name = request.form['event_name']
             description = request.form['event_description']
             date = request.form['event_date']
-            db.execute('INSERT INTO events (event_name, event_description, event_date) VALUES (?, ?, ?)', (event_name, description, date))
+            start = request.form['start_time']
+            end = request.form['end_time']
+            db.execute('INSERT INTO events (event_name, event_description, event_date, start_time, end_time) VALUES (?, ?, ?,?,?)', (event_name, description, date, start, end))
             db.commit()
             
         elif user_role == 'faculty' and 'remove_event_id' in request.form:
@@ -224,11 +226,11 @@ def event_descript(event_id):
         db.execute("UPDATE events SET event_description = ? WHERE id = ?", (new_description, event_id))
         db.commit()
 
-    cur = db.execute('SELECT id, event_name, event_description FROM events WHERE id = ?', (event_id,))
+    cur = db.execute('SELECT id, event_name, event_description, start_time, end_time FROM events WHERE id = ?', (event_id,))
     event = cur.fetchone()
     
     # Render the eventbase.html template with the specific event's data
-    return render_template('eventbase.html', event=event)
+    return render_template('description.html', event=event)
 
 if __name__ == '__main__':
     app.run(debug=True)

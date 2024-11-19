@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSDept1 - Events</title>
+    <!-- Link to the custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
 </head>
 <body>
+    <!-- Navigation Bar -->
     <nav class="navbar">
         <ul>
             <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
@@ -17,26 +20,26 @@
     </nav>
 
     <div class="container">
-        <!-- Form for adding new events -->
+        <!-- Form for Adding New Events -->
         <div class="event-list">
-            <form method="POST" action="/events">
-                <input type="text" name="event_name" placeholder="Event Name" required>
-                <input type="text" name="event_description" placeholder="Event Description" required>
-                <input type="date" name="event_date" id="event_date" required>
-                <button type="submit">Add Event</button>
+            <form method="POST" action="/events" class="add-event-form">
+                <input type="text" name="event_name" class="form-input" placeholder="Event Name" required>
+                <input type="text" name="event_description" class="form-input" placeholder="Event Description" required>
+                <input type="date" name="event_date" class="form-input" id="event_date" required>
+                <button type="submit" class="form-button">Add Event</button>
             </form>
 
             <ul>
-                <!-- Displaying the events list -->
+                <!-- Displaying the Events List -->
                 {% for event in events %}
-                    <li>
-                        <a href="{{ url_for('event_descript', event_id=event['id']) }}">{{ event['event_name'] }}</a>
-                        -
-
+                    <li class="event-card">
+                        <a href="{{ url_for('event_descript', event_id=event['id']) }}" class="event-title">{{ event['event_name'] }}</a>
+                        <p class="event-description">{{ event['event_description'] }}</p>
+                        <p class="event-date">Date: {{ event['event_date'] }}</p>
 
                         <form method="POST" action="/events" style="display: inline;">
                             <input type="hidden" name="remove_event_id" value="{{ event['id'] }}">
-                            <button type="submit">Remove</button>
+                            <button type="submit" class="btn">Remove</button>
                         </form>
                     </li>
                 {% endfor %}
@@ -47,49 +50,88 @@
         <div id="calendar"></div>
     </div>
 
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        events: [],  // Start with an empty events array
-        dateClick: function(info) {
-            var selectedDate = info.dateStr;  // FullCalendar provides date in YYYY-MM-DD format
-
-            // Send the selected date to the backend to filter events
-            fetch(`/events?selected_date=${selectedDate}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Update the event list with the filtered events
-                    var eventList = document.querySelector('.event-list ul');
-                    eventList.innerHTML = '';  // Clear the existing events list
-                    data.events.forEach(event => {
-                        var li = document.createElement('li');
-                        li.innerHTML = `
-                            <a href="/event/'<int:event_id>'">${event.event_name}</a> 
-                            
-                            <form method="POST" action="/events" style="display: inline;">
-                                <input type="hidden" name="remove_event_id" value="${event.id}">
-                                <button type="submit">Remove</button>
-                            </form>
-                        `;
-                        eventList.appendChild(li);
-                    });
-                });
-        }
-    });
-    calendar.render();
-});
-
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+    
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: ''
+                },
+                events: '/api/events', // Fetch events dynamically from backend
+    
+                // Render a red dot only, no default box
+                eventContent: function () {
+                    return { html: '<div class="custom-dot"></div>' };
+                },
+    
+                dateClick: function (info) {
+                    const selectedDate = info.dateStr;
+    
+                    // Fetch events for the clicked date
+                    fetch(`/events?selected_date=${selectedDate}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const eventList = document.querySelector('.event-list ul');
+                            eventList.innerHTML = ''; // Clear existing event list
+                            data.events.forEach(event => {
+                                const li = document.createElement('li');
+                                li.classList.add('event-card');
+                                li.innerHTML = `
+                                    <a href="/event/${event.id}" class="event-title">${event.event_name}</a>
+                                    <p class="event-description">${event.event_description}</p>
+                                    <form method="POST" action="/events" style="display: inline;">
+                                        <input type="hidden" name="remove_event_id" value="${event.id}">
+                                        <button type="submit" class="btn">Remove</button>
+                                    </form>
+                                `;
+                                eventList.appendChild(li);
+                            });
+                        });
+                }
+            });
+    
+            calendar.render();
+    
+            // Handle new event submission
+            document.querySelector('.add-event-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+    
+                const formData = new FormData(e.target);
+                const eventDate = formData.get('event_date');
+    
+                // Send event to backend
+                fetch('/events', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Add new event only if a dot does not already exist
+                        const existingEvents = calendar.getEvents().filter(event => event.startStr === eventDate);
+                        if (existingEvents.length === 0) {
+                            calendar.addEvent({
+                                start: eventDate // Only the date is needed for the dot
+                            });
+                        }
+    
+                        // Reset form fields
+                        e.target.reset();
+                    } else {
+                        console.error('Failed to add event');
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+            });
+        });
     </script>
+    
 
+    <!-- Back to Home Link -->
     <div class="centered">
         <a href="/index" class="back-home">Back to Home</a>
     </div>

@@ -18,7 +18,6 @@ def get_db():
 def init_db_command():
     init_db()
     print('Database initialized.')
-
 @app.teardown_appcontext
 def close_db(exception):
     db = g.pop('db', None)

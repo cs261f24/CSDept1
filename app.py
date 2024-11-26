@@ -38,9 +38,13 @@ def get_reports(sort_by, search_query, event_type):
 
     # Base query with placeholders for filtering and sorting
     query = '''
-    SELECT name, event, event_type, date_attended
-    FROM reports
-    WHERE name LIKE ?
+        SELECT users.first_name || ' ' || users.last_name AS name,
+               events.event_name AS event,
+               events.event_date AS date_attended
+        FROM user_events
+        JOIN users ON user_events.user_id = users.id
+        JOIN events ON user_events.event_id = events.id
+        WHERE users.first_name || ' ' || users.last_name LIKE ?
     '''
     query_params = [f'%{search_query}%']  # Using LIKE for partial match search
 
@@ -73,7 +77,7 @@ def index():
     if user:
         db = get_db()
         cursor = db.execute('''
-            SELECT events.event_name FROM events
+            SELECT events.event_name, events.event_date FROM events
             JOIN user_events ON events.id = user_events.event_id
             WHERE user_events.user_id = ? 
         ''', (user['id'],))

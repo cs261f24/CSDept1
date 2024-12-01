@@ -24,3 +24,10 @@ CREATE TABLE IF NOT EXISTS user_events (
     event_id INTEGER NOT NULL,
     PRIMARY KEY (user_id, event_id)
 );
+
+DROP TABLE IF EXISTS reports;
+CREATE TABLE reports (
+    id INTEGER PRIMARY KEY,
+    event_type TEXT
+    
+);

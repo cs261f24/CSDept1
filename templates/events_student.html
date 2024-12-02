@@ -15,6 +15,7 @@
             <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
             <li><a href="{{ url_for('reports') }}">View Reports</a></li>
             <li><a href="{{ url_for('events') }}">View Events</a></li>
+            <li><a href="{{ url_for('login') }}">Logout</a></li>
         </ul>
     </nav>
 
@@ -45,23 +46,83 @@
         <div id="calendar"></div>
     </div>
 
-    <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calendar');
+    
             var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth', // Display month view by default
+                initialView: 'dayGridMonth',
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
                     right: ''
                 },
-                events: [], // Start with an empty events array
+                events: '/api/events', // Fetch events dynamically from backend
+    
+                // Render a red dot only, no default box
+                eventContent: function () {
+                    return { html: '<div class="custom-dot"></div>' };
+                },
+    
+                dateClick: function (info) {
+                    const selectedDate = info.dateStr;
+    
+                    // Fetch events for the clicked date
+                    fetch(`/events?selected_date=${selectedDate}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const eventList = document.querySelector('.event-list ul');
+                            eventList.innerHTML = ''; // Clear existing event list
+                            data.events.forEach(event => {
+                                const li = document.createElement('li');
+                                li.classList.add('event-card');
+                                li.innerHTML = `
+                                    <a href="/event/${event.id}" class="event-title">${event.event_name}</a>
+                                    <p class="event-description">${event.event_description}</p>
+
+                                `;
+                                eventList.appendChild(li);
+                            });
+                        });
+                }
             });
+    
             calendar.render();
+    
+            // Handle new event submission
+            document.querySelector('.add-event-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+    
+                const formData = new FormData(e.target);
+                const eventDate = formData.get('event_date');
+    
+                // Send event to backend
+                fetch('/events', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Add new event only if a dot does not already exist
+                        const existingEvents = calendar.getEvents().filter(event => event.startStr === eventDate);
+                        if (existingEvents.length === 0) {
+                            calendar.addEvent({
+                                start: eventDate // Only the date is needed for the dot
+                            });
+                        }
+    
+                        // Reset form fields
+                        e.target.reset();
+                    } else {
+                        console.error('Failed to add event');
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+            });
         });
     </script>
+    
 
     <!-- Back to Home Link -->
     <div class="centered">

@@ -148,7 +148,7 @@ def events():
         ]
         return jsonify(events=events_data)
 
-    events_list = db.execute('SELECT id, event_name FROM events').fetchall()
+    events_list = db.execute('SELECT id, event_name, event_date FROM events').fetchall()
     attended_cursor = db.execute('SELECT event_id FROM user_events WHERE user_id = ?', (user_id,))
     attended_event_ids = {row['event_id'] for row in attended_cursor.fetchall()}
 
@@ -230,7 +230,7 @@ def event_descript(event_id):
         db.execute("UPDATE events SET event_description = ? WHERE id = ?", (new_description, event_id))
         db.commit()
 
-    cur = db.execute('SELECT id, event_name, event_description, start_time, end_time FROM events WHERE id = ?', (event_id,))
+    cur = db.execute('SELECT id, event_name, event_description, event_date, start_time, end_time FROM events WHERE id = ?', (event_id,))
     event = cur.fetchone()
     
     # Render the eventbase.html template with the specific event's data

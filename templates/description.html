@@ -21,6 +21,7 @@
                   <li>Computer Science Department</li>
                   <li><a href="{{ url_for('index') }}">View Reports</a></li>
                   <li><a href="{{ url_for('events') }}">View Events</a></li>
+                  <li><a href="{{ url_for('login') }}">Logout</a></li>
               </ul>
           </nav>
       </ul>
@@ -34,7 +35,7 @@
         <li>
           {{ event['event_description'] }}
           {{ event['event_date'] }}
-          {{ event['start_time'] }}
+          {{ event['start_time'] }} -
           {{ event['end_time'] }}
 
           <form method="POST" action="{{ url_for('event_descript', event_id=event['id']) }}">

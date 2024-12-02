@@ -3,22 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSDept1</title>
+    <title>CSDept1 - Home</title>
     <!-- Link to CSS using Flask's url_for function -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=2">
 </head>
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar">
         <ul>
-            <nav class="navbar">
-                <ul>
-                    <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
-                    <li><a href="{{ url_for('reports') }}">View Reports</a></li>
-                    <li><a href="{{ url_for('events') }}">View Events</a></li>
-                </ul>
-            </nav>
-            
+            <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
+            <li><a href="{{ url_for('reports') }}">View Reports</a></li>
+            <li><a href="{{ url_for('events') }}">View Events</a></li>
         </ul>
     </nav>
     <!-- Welcome message -->

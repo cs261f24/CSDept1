@@ -236,6 +236,25 @@ def event_descript(event_id):
     # Render the eventbase.html template with the specific event's data
     return render_template('description.html', event=event)
 
+@app.route('/api/events', methods=['GET'])
+def get_all_events():
+    """
+    Returns all events in a format compatible with FullCalendar.
+    """
+    db = get_db()
+    events = db.execute('SELECT id, event_name, event_date FROM events').fetchall()
+
+    # Format events as required by FullCalendar
+    return jsonify([
+        {
+            'id': event['id'],
+            'title': event['event_name'],
+            'start': event['event_date']
+        }
+        for event in events
+    ])
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 

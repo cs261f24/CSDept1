@@ -134,7 +134,7 @@ def events():
         return redirect(url_for('events'))
 
     if selected_date:
-        events = db.execute('SELECT id, event_name, event_description FROM events WHERE event_date = ?', (selected_date,)).fetchall()
+        events = db.execute('SELECT id, event_name, event_description, event_date FROM events WHERE event_date = ?', (selected_date,)).fetchall()
         attended_events = db.execute('SELECT event_id FROM user_events WHERE user_id = ?', (user_id,)).fetchall()
         attended_event_ids = {row['event_id'] for row in attended_events}
         events_data = [
@@ -142,6 +142,7 @@ def events():
                 'id': event['id'],
                 'event_name': event['event_name'],
                 'event_description': event['event_description'],
+                'event_date': event['event_date'],
                 'attended': event['id'] in attended_event_ids
             }
             for event in events

@@ -12,8 +12,10 @@
     <!-- Navigation Bar -->
     <nav class="navbar">
         <ul>
-            <li>Computer Science Department</li>
-            <li><a href="{{ url_for('index') }}">View Reports</a></li>
+            <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
+        {% if session.get('user') and session['user'].get('role') != 'student' %}
+            <li><a href="{{ url_for('reports') }}">View Reports</a></li>
+        {% endif %}
             <li><a href="{{ url_for('events') }}">View Events</a></li>
             <li><a href="{{ url_for('login') }}">Logout</a></li>
         </ul>

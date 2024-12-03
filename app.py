@@ -212,8 +212,11 @@ def login():
             role = user[3]
 
             session['user'] = {'id': user_id, 'first_name': first_name, 'last_name': last_name, 'role': role}
-            # User is authenticated, redirect to the index page
-            return redirect(url_for('index'))
+            # User is authenticated, redirect to appropriate page
+            if role == 'student':
+                return redirect(url_for('index'))
+            elif role == 'faculty':
+                return redirect(url_for('reports'))
         else:
             flash('Invalid email or password')
 

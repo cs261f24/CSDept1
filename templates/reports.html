@@ -35,14 +35,14 @@
             <button type="submit" class="search-button">Search</button>
             
             <!-- Dropdown for Event Type -->
-            <select name="event_type" class="event-dropdown">
+            <!-- <select name="event_type" class="event-dropdown">
                 <option value="">All Event Types</option>
                 {% for event in event_types %}
                     <option value="{{ event[0] }}" {% if event[0] == request.args.get('event_type') %}selected{% endif %}>{{ event[0] }}</option>
                 {% endfor %}
             </select>
             
-            <button type="submit" class="filter-button">Filter</button>
+            <button type="submit" class="filter-button">Filter</button> -->
         </form>
     
         <div class="table-container">

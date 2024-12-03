@@ -11,13 +11,20 @@
     <!-- Navigation Bar -->
     <nav class="navbar">
         <ul>
-            <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
+            <li>
+        {% if session.get('user') and session['user'].get('role') == 'student' %}
+            <a href="{{ url_for('index') }}">Computer Science Department</a>
+        {% else %}
+            <span>Computer Science Department</span>
+        {% endif %}
+            </li>
+        {% if session.get('user') and session['user'].get('role') != 'student' %}
             <li><a href="{{ url_for('reports') }}">View Reports</a></li>
+        {% endif %}
             <li><a href="{{ url_for('events') }}">View Events</a></li>
             <li><a href="{{ url_for('login') }}">Logout</a></li>
         </ul>
     </nav>
-
     <section>
         <!-- Creates a table to show attributes of reports -->
         <h2>Student Reports</h2>
@@ -28,14 +35,14 @@
             <button type="submit" class="search-button">Search</button>
             
             <!-- Dropdown for Event Type -->
-            <select name="event_type" class="event-dropdown">
+            <!-- <select name="event_type" class="event-dropdown">
                 <option value="">All Event Types</option>
                 {% for event in event_types %}
                     <option value="{{ event[0] }}" {% if event[0] == request.args.get('event_type') %}selected{% endif %}>{{ event[0] }}</option>
                 {% endfor %}
             </select>
             
-            <button type="submit" class="filter-button">Filter</button>
+            <button type="submit" class="filter-button">Filter</button> -->
         </form>
     
         <div class="table-container">

@@ -134,7 +134,7 @@ def events():
         return redirect(url_for('events'))
 
     if selected_date:
-        events = db.execute('SELECT id, event_name, event_description FROM events WHERE event_date = ?', (selected_date,)).fetchall()
+        events = db.execute('SELECT id, event_name, event_description, event_date FROM events WHERE event_date = ?', (selected_date,)).fetchall()
         attended_events = db.execute('SELECT event_id FROM user_events WHERE user_id = ?', (user_id,)).fetchall()
         attended_event_ids = {row['event_id'] for row in attended_events}
         events_data = [
@@ -142,6 +142,7 @@ def events():
                 'id': event['id'],
                 'event_name': event['event_name'],
                 'event_description': event['event_description'],
+                'event_date': event['event_date'],
                 'attended': event['id'] in attended_event_ids
             }
             for event in events
@@ -212,8 +213,11 @@ def login():
             role = user[3]
 
             session['user'] = {'id': user_id, 'first_name': first_name, 'last_name': last_name, 'role': role}
-            # User is authenticated, redirect to the index page
-            return redirect(url_for('index'))
+            # User is authenticated, redirect to appropriate page
+            if role == 'student':
+                return redirect(url_for('index'))
+            elif role == 'faculty':
+                return redirect(url_for('reports'))
         else:
             flash('Invalid email or password')
 

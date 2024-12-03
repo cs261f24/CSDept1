@@ -12,8 +12,10 @@
     <!-- Navigation Bar -->
     <nav class="navbar">
         <ul>
-            <li>Computer Science Department</li>
-            <li><a href="{{ url_for('index') }}">View Reports</a></li>
+            <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
+        {% if session.get('user') and session['user'].get('role') != 'student' %}
+            <li><a href="{{ url_for('reports') }}">View Reports</a></li>
+        {% endif %}
             <li><a href="{{ url_for('events') }}">View Events</a></li>
             <li><a href="{{ url_for('login') }}">Logout</a></li>
         </ul>
@@ -80,7 +82,15 @@
                                 li.classList.add('event-card');
                                 li.innerHTML = `
                                     <a href="/event/${event.id}" class="event-title">${event.event_name}</a>
-                                    <p class="event-description">${event.event_description}</p>
+                                    <p class="event-date">Date: ${event.event_date}</p>
+                                    ${
+                                        !event.attended
+                                            ? `<form method="POST" action="/events" style="display: inline;">
+                                                <input type="hidden" name="attend_event_id" value="${event.id}">
+                                                <button type="submit" class="btn">Mark as Attended</button>
+                                            </form>`
+                                            : `<span class="badge success">Attended</span>`
+                                    }
 
                                 `;
                                 eventList.appendChild(li);

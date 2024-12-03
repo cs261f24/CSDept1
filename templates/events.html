@@ -13,8 +13,16 @@
     <!-- Navigation Bar -->
     <nav class="navbar">
         <ul>
-            <li><a href="{{ url_for('index') }}">Computer Science Department</a></li>
+            <li>
+        {% if session.get('user') and session['user'].get('role') == 'student' %}
+            <a href="{{ url_for('index') }}">Computer Science Department</a>
+        {% else %}
+            <span>Computer Science Department</span>
+        {% endif %}
+            </li>
+        {% if session.get('user') and session['user'].get('role') != 'student' %}
             <li><a href="{{ url_for('reports') }}">View Reports</a></li>
+        {% endif %}
             <li><a href="{{ url_for('events') }}">View Events</a></li>
             <li><a href="{{ url_for('login') }}">Logout</a></li>
         </ul>
@@ -85,7 +93,7 @@
                                 li.classList.add('event-card');
                                 li.innerHTML = `
                                     <a href="/event/${event.id}" class="event-title">${event.event_name}</a>
-                                    <p class="event-description">${event.event_description}</p>
+                                    <p class="event-date">Date: ${event.event_date}</p>
                                     <form method="POST" action="/events" style="display: inline;">
                                         <input type="hidden" name="remove_event_id" value="${event.id}">
                                         <button type="submit" class="btn">Remove</button>
@@ -135,7 +143,7 @@
 
     <!-- Back to Home Link -->
     <div class="centered">
-        <a href="/index" class="back-home">Back to Home</a>
+        <a href="/reports" class="back-home">Back to Home</a>
     </div>
 </body>
 </html>
